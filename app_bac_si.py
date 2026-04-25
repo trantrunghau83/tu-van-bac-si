@@ -17,7 +17,7 @@ except:
     st.stop()
 
 # 3. Khởi tạo mô hình (Dùng bản Flash để đọc ảnh nhanh và cực kỳ thông minh)
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-2.5-flash')
 
 # 4. Giao diện người dùng
 col1, col2 = st.columns([1, 1])
