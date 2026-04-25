@@ -1,55 +1,74 @@
 import streamlit as st
 import google.generativeai as genai
+from PIL import Image # Thư viện để xử lý ảnh
 
-# Cấu hình giao diện trang web
-st.set_page_config(page_title="Tư Vấn Y Khoa Toàn Diện", page_icon="🩺", layout="wide")
+# 1. Cấu hình giao diện
+st.set_page_config(page_title="Bác Sĩ Toàn Diện 4.0", page_icon="🩺", layout="wide")
 
-st.title("🩺 Trợ Lý Bác Sĩ Toàn Diện: Thể Chất - Tâm Trí - Năng Lượng")
-st.markdown("Nhập triệu chứng của bạn. Hệ thống sẽ phân tích dưới 3 góc độ: **Khoa học (Y khoa), Triết học (Tâm lý/Nhận thức), và Vô hình (Năng lượng/Tâm linh)**.")
+st.title("🩺 Trợ Lý Bác Sĩ: Phân Tích Triệu Chứng & Kết Quả Xét Nghiệm")
+st.markdown("---")
 
-# Lấy "Chìa khóa" từ Két sắt (Secrets) mà anh đã làm thành công hôm trước
+# 2. Kết nối API Key từ Két sắt
 try:
     API_KEY = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=API_KEY)
-except Exception as e:
-    st.error("Chưa kết nối được với Két sắt chứa API Key. Anh kiểm tra lại trên Streamlit nhé!")
+except:
+    st.error("Lỗi: Chưa tìm thấy API Key trong Secrets của Streamlit!")
     st.stop()
 
-# Khởi tạo bộ não AI (Dùng bản Pro để suy luận sâu)
-model = genai.GenerativeModel('models/gemini-2.5-pro')
+# 3. Khởi tạo mô hình (Dùng bản Flash để đọc ảnh nhanh và cực kỳ thông minh)
+model = genai.GenerativeModel('gemini-1.5-flash')
 
-# Giao diện nhập liệu
-trieu_chung = st.text_area("Nhập triệu chứng hoặc vấn đề sức khỏe cần nghiên cứu:", 
-                          height=150, 
-                          placeholder="Ví dụ: Đau đầu kéo dài, mất ngủ kinh niên, cảm giác nặng nề ở ngực...")
+# 4. Giao diện người dùng
+col1, col2 = st.columns([1, 1])
 
-if st.button("Bắt đầu tham vấn chuyên gia", type="primary"):
-    if trieu_chung:
-        with st.spinner("Đang kết nối với Hội đồng Chuyên gia (Y khoa, Triết gia, Bậc thầy Năng lượng)..."):
+with col1:
+    st.subheader("1. Nhập thông tin triệu chứng")
+    trieu_chung = st.text_area("Mô tả cảm giác của anh:", 
+                              height=150, 
+                              placeholder="Ví dụ: Tôi bị đau hạ sườn phải, kèm theo mệt mỏi sau khi ăn...")
+
+with col2:
+    st.subheader("2. Tải ảnh (Xét nghiệm/Đơn thuốc)")
+    uploaded_file = st.file_uploader("Chọn ảnh từ điện thoại của anh:", type=["jpg", "jpeg", "png"])
+    if uploaded_file is not None:
+        image = Image.open(uploaded_file)
+        st.image(image, caption="Ảnh đã tải lên", use_container_width=True)
+
+# 5. Nút bấm xử lý
+if st.button("Bắt đầu Phân Tích Chuyên Sâu", type="primary"):
+    if not trieu_chung and uploaded_file is None:
+        st.warning("Anh Hậu ơi, anh hãy nhập triệu chứng hoặc tải ảnh lên nhé!")
+    else:
+        with st.spinner("Hội đồng chuyên gia đang đọc dữ liệu và hội ý..."):
             try:
-                # Đây là lõi linh hồn của App: Ép AI trả lời theo 3 góc độ
+                # Thiết lập câu lệnh (Prompt) "Hội đồng 3 chuyên gia"
                 prompt = f"""
-                Bạn là một hội đồng chuyên gia xuất chúng gồm: một Bác sĩ Y khoa hiện đại, một Triết gia uyên thâm, và một Bậc thầy về Năng lượng/Tâm linh (Vô hình).
-                Người bệnh hoặc Nhà nghiên cứu đang cần tư vấn về vấn đề sau: "{trieu_chung}"
+                Bạn là một Hội đồng Chuyên gia gồm: Bác sĩ Y khoa, Triết gia và Bậc thầy Năng lượng.
+                Nhiệm vụ: Phân tích thông tin người dùng cung cấp (văn bản) và hình ảnh đính kèm (kết quả xét nghiệm, đơn thuốc, hoặc vùng bị đau).
                 
-                Hãy phân tích sâu sắc vấn đề này và đưa ra lời khuyên hữu ích theo cấu trúc 3 phần rõ ràng:
+                Nội dung người dùng viết: "{trieu_chung}"
                 
-                1. GÓC ĐỘ KHOA HỌC (Y Khoa Vật Lý): Phân tích nguyên nhân sinh lý học, cơ chế bệnh sinh, và các hướng thăm khám/điều trị theo y học hiện đại.
-                2. GÓC ĐỘ TRIẾT HỌC (Tâm Lý & Nhận Thức): Phân tích ý nghĩa của triệu chứng này đối với lối sống, sự mất cân bằng trong nội tâm, và bài học mà cơ thể đang muốn "nhắc nhở" chủ nhân.
-                3. GÓC ĐỘ VÔ HÌNH (Năng Lượng & Khí Quán): Phân tích theo quan điểm dòng chảy năng lượng (luân xa, kinh lạc), khí huyết, hoặc các yếu tố tâm linh/môi trường ảnh hưởng đến trường năng lượng cơ thể.
+                Hãy trả lời theo 3 góc độ:
+                1. GÓC ĐỘ KHOA HỌC: Giải thích các chỉ số trong ảnh (nếu có) và đối chiếu với triệu chứng. Đưa ra lời khuyên y tế.
+                2. GÓC ĐỘ TRIẾT HỌC: Ý nghĩa của căn bệnh đối với tâm hồn và sự cân bằng cuộc sống.
+                3. GÓC ĐỘ VÔ HÌNH: Sự tắc nghẽn năng lượng hoặc các yếu tố tinh thần ảnh hưởng đến thể chất.
                 
-                Yêu cầu văn phong: Thấu cảm, thông thái, khách quan, rõ ràng và có tính ứng dụng cao.
+                Lưu ý quan trọng: Luôn nhắc nhở đây là tư vấn tham khảo, người dùng cần tuân thủ chỉ định của bác sĩ trực tiếp.
                 """
                 
-                # Gọi AI xử lý
-                response = model.generate_content(prompt)
+                # Nếu có ảnh, gửi cả prompt và ảnh cho AI
+                if uploaded_file is not None:
+                    response = model.generate_content([prompt, image])
+                else:
+                    response = model.generate_content(prompt)
                 
-                # Hiển thị kết quả
-                st.success("Phân tích hoàn tất! Mời anh xem kết quả bên dưới:")
-                st.markdown("---")
+                st.success("Kết quả tham vấn:")
                 st.markdown(response.text)
                 
             except Exception as e:
-                st.error(f"Hệ thống đang quá tải hoặc gặp lỗi: {e}")
-    else:
-        st.warning("Anh Hậu vui lòng nhập triệu chứng trước khi bấm nút nhé!")
+                st.error(f"Có lỗi xảy ra: {e}")
+
+# 6. Chân trang
+st.markdown("---")
+st.caption("Công cụ được phát triển cho mục đích nghiên cứu và tham vấn hỗ trợ. Hãy luôn lắng nghe cơ thể mình.")
