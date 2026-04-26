@@ -6,7 +6,6 @@ from datetime import datetime
 # 1. CẤU HÌNH GIAO DIỆN & MÀU SẮC CÁ TÍNH (CSS)
 st.set_page_config(page_title="Bác Sĩ Tâm Giao", page_icon="🌿", layout="wide")
 
-# Tùy chỉnh màu sắc thân thiện và KHẮC PHỤC LỖI CHỮ TRẮNG
 st.markdown("""
     <style>
     /* Màu nền chính */
@@ -14,13 +13,13 @@ st.markdown("""
         background-color: #F0F4F2 !important;
     }
     
-    /* Ép màu cho TẤT CẢ các tiêu đề và chữ thông thường (Fix lỗi chữ trắng) */
-    h1, h2, h3, h4, p, label, .stMarkdown, div {
+    /* Ép màu cho các tiêu đề và chữ thông thường */
+    h1, h2, h3, h4, label, .stMarkdown {
         color: #1E3F3D !important; 
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
-    /* Tùy chỉnh khung nhập liệu (Nền trắng, viền xanh rêu, chữ bên trong màu đậm) */
+    /* Khung nhập liệu (Nền trắng, viền xanh) */
     .stTextArea textarea {
         border-radius: 15px !important;
         border: 2px solid #A3C6C4 !important;
@@ -28,16 +27,22 @@ st.markdown("""
         color: #1E3F3D !important; 
     }
     
-    /* Tùy chỉnh nút bấm chính (Nền xanh rêu đậm, CHỮ TRẮNG) */
+    /* TÙY CHỈNH NÚT BẤM (SỬA LỖI CHỮ CHÌM) */
     .stButton>button {
         background-color: #2E5A56 !important;
-        color: white !important; 
         border-radius: 25px !important;
         padding: 10px 25px !important;
         border: none !important;
-        font-weight: bold;
         transition: 0.3s;
     }
+    
+    /* Ép tất cả chữ bên trong nút bấm phải là MÀU TRẮNG */
+    .stButton>button p, .stButton>button div, .stButton>button span {
+        color: #FFFFFF !important; 
+        font-weight: bold !important;
+        font-size: 16px !important;
+    }
+    
     .stButton>button:hover {
         background-color: #438A83 !important;
         transform: scale(1.05);
@@ -53,9 +58,8 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
     
-    /* Đảm bảo chữ trong tab cũng rõ ràng */
     .stTabs [data-baseweb="tab"] p {
-        color: #2e5a56 !important;
+        color: #2E5A56 !important;
         font-weight: bold;
     }
     </style>
