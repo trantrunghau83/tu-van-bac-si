@@ -1,74 +1,141 @@
 import streamlit as st
 import google.generativeai as genai
-from PIL import Image # Thư viện để xử lý ảnh
+from PIL import Image
+from datetime import datetime
 
-# 1. Cấu hình giao diện
-st.set_page_config(page_title="Bác Sĩ Toàn Diện 4.0", page_icon="🩺", layout="wide")
+# 1. CẤU HÌNH GIAO DIỆN & MÀU SẮC CÁ TÍNH (CSS)
+st.set_page_config(page_title="Bác Sĩ Tâm Giao", page_icon="🌿", layout="wide")
 
-st.title("🩺 Trợ Lý Bác Sĩ: Phân Tích Triệu Chứng & Kết Quả Xét Nghiệm")
-st.markdown("---")
+# Tùy chỉnh màu sắc thân thiện
+st.markdown("""
+    <style>
+    /* Màu nền chính và font chữ */
+    .stApp {
+        background-color: #F0F4F2;
+    }
+    /* Đổi màu tiêu đề */
+    h1 {
+        color: #2E5A56 !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    /* Tùy chỉnh khung nhập liệu */
+    .stTextArea textarea {
+        border-radius: 15px !important;
+        border: 2px solid #A3C6C4 !important;
+    }
+    /* Tùy chỉnh nút bấm chính */
+    .stButton>button {
+        background-color: #2E5A56 !important;
+        color: white !important;
+        border-radius: 25px !important;
+        padding: 10px 25px !important;
+        border: none !important;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        background-color: #438A83 !important;
+        transform: scale(1.05);
+    }
+    /* Khung hiển thị lịch sử */
+    .history-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 15px;
+        border-left: 5px solid #2E5A56;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-# 2. Kết nối API Key từ Két sắt
+# 2. KHỞI TẠO BỘ NHỚ LỊCH SỬ (Session State)
+if 'history' not in st.session_state:
+    st.session_state.history = []
+
+# 3. KẾT NỐI API KEY
 try:
     API_KEY = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=API_KEY)
 except:
-    st.error("Lỗi: Chưa tìm thấy API Key trong Secrets của Streamlit!")
+    st.error("Lỗi: Chưa tìm thấy chìa khóa API trong Secrets!")
     st.stop()
 
-# 3. Khởi tạo mô hình (Dùng bản Flash để đọc ảnh nhanh và cực kỳ thông minh)
 model = genai.GenerativeModel('gemini-2.5-flash')
 
-# 4. Giao diện người dùng
-col1, col2 = st.columns([1, 1])
+# 4. GIAO DIỆN CHÍNH
+st.title("🌿 Bác Sĩ Tâm Giao: Thể Chất & Tâm Hồn")
+st.write("Chào anh Hậu, hãy để 'Hội đồng chuyên gia' đồng hành cùng sức khỏe của anh.")
 
-with col1:
-    st.subheader("1. Nhập thông tin triệu chứng")
-    trieu_chung = st.text_area("Mô tả cảm giác của anh:", 
-                              height=150, 
-                              placeholder="Ví dụ: Tôi bị đau hạ sườn phải, kèm theo mệt mỏi sau khi ăn...")
+tab1, tab2 = st.tabs(["🩺 Hội Chẩn Mới", "📜 Lịch Sử Tư Vấn"])
 
-with col2:
-    st.subheader("2. Tải ảnh (Xét nghiệm/Đơn thuốc)")
-    uploaded_file = st.file_uploader("Chọn ảnh từ điện thoại của anh:", type=["jpg", "jpeg", "png"])
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption="Ảnh đã tải lên", use_container_width=True)
+with tab1:
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        st.subheader("Thông tin triệu chứng")
+        trieu_chung = st.text_area("Mô tả của anh:", height=150, placeholder="Anh đang cảm thấy thế nào?")
+        
+    with col2:
+        st.subheader("Dữ liệu hình ảnh")
+        uploaded_file = st.file_uploader("Tải ảnh xét nghiệm/đơn thuốc:", type=["jpg", "png", "jpeg"])
+        if uploaded_file:
+            image = Image.open(uploaded_file)
+            st.image(image, caption="Dữ liệu đã nhận", use_container_width=True)
 
-# 5. Nút bấm xử lý
-if st.button("Bắt đầu Phân Tích Chuyên Sâu", type="primary"):
-    if not trieu_chung and uploaded_file is None:
-        st.warning("Anh Hậu ơi, anh hãy nhập triệu chứng hoặc tải ảnh lên nhé!")
+    if st.button("✨ Bắt Đầu Phân Tích Chuyên Sâu"):
+        if not trieu_chung and not uploaded_file:
+            st.warning("Anh vui lòng nhập thông tin trước nhé!")
+        else:
+            with st.spinner("Đang kết nối hội đồng chuyên gia..."):
+                try:
+                    prompt = f"""
+                    Bạn là Hội đồng chuyên gia: Bác sĩ Y khoa, Triết gia, và Bậc thầy Năng lượng.
+                    Hãy phân tích: "{trieu_chung}"
+                    Trả lời theo 3 phần: Khoa học, Triết học, Vô hình. 
+                    Văn phong: Thân thiện, sâu sắc, cá tính.
+                    """
+                    
+                    if uploaded_file:
+                        response = model.generate_content([prompt, image])
+                    else:
+                        response = model.generate_content(prompt)
+                    
+                    # Lưu vào lịch sử
+                    now = datetime.now().strftime("%d/%m/%Y %H:%M")
+                    new_entry = {
+                        "time": now,
+                        "query": trieu_chung if trieu_chung else "Phân tích qua hình ảnh",
+                        "result": response.text
+                    }
+                    st.session_state.history.insert(0, new_entry) # Thêm vào đầu danh sách
+                    
+                    st.success("Hội chẩn hoàn tất!")
+                    st.markdown(response.text)
+                except Exception as e:
+                    st.error(f"Lỗi: {e}")
+
+with tab2:
+    st.subheader("Các lần hội chẩn gần đây")
+    if not st.session_state.history:
+        st.write("Chưa có lịch sử nào được lưu trong phiên này.")
     else:
-        with st.spinner("Hội đồng chuyên gia đang đọc dữ liệu và hội ý..."):
-            try:
-                # Thiết lập câu lệnh (Prompt) "Hội đồng 3 chuyên gia"
-                prompt = f"""
-                Bạn là một Hội đồng Chuyên gia gồm: Bác sĩ Y khoa, Triết gia và Bậc thầy Năng lượng.
-                Nhiệm vụ: Phân tích thông tin người dùng cung cấp (văn bản) và hình ảnh đính kèm (kết quả xét nghiệm, đơn thuốc, hoặc vùng bị đau).
-                
-                Nội dung người dùng viết: "{trieu_chung}"
-                
-                Hãy trả lời theo 3 góc độ:
-                1. GÓC ĐỘ KHOA HỌC: Giải thích các chỉ số trong ảnh (nếu có) và đối chiếu với triệu chứng. Đưa ra lời khuyên y tế.
-                2. GÓC ĐỘ TRIẾT HỌC: Ý nghĩa của căn bệnh đối với tâm hồn và sự cân bằng cuộc sống.
-                3. GÓC ĐỘ VÔ HÌNH: Sự tắc nghẽn năng lượng hoặc các yếu tố tinh thần ảnh hưởng đến thể chất.
-                
-                Lưu ý quan trọng: Luôn nhắc nhở đây là tư vấn tham khảo, người dùng cần tuân thủ chỉ định của bác sĩ trực tiếp.
-                """
-                
-                # Nếu có ảnh, gửi cả prompt và ảnh cho AI
-                if uploaded_file is not None:
-                    response = model.generate_content([prompt, image])
-                else:
-                    response = model.generate_content(prompt)
-                
-                st.success("Kết quả tham vấn:")
-                st.markdown(response.text)
-                
-            except Exception as e:
-                st.error(f"Có lỗi xảy ra: {e}")
+        for entry in st.session_state.history:
+            with st.container():
+                st.markdown(f"""
+                <div class="history-card">
+                    <small style='color: #666;'>🕒 Thời gian: {entry['time']}</small><br>
+                    <strong>Triệu chứng:</strong> {entry['query'][:100]}...<br>
+                    <details>
+                        <summary style='color: #2E5A56; cursor: pointer;'>Xem lại chi tiết lời khuyên</summary>
+                        <div style='margin-top: 10px;'>{entry['result']}</div>
+                    </details>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        # Nút xóa lịch sử
+        if st.button("🗑️ Xóa sạch lịch sử"):
+            st.session_state.history = []
+            st.rerun()
 
-# 6. Chân trang
 st.markdown("---")
-st.caption("Công cụ được phát triển cho mục đích nghiên cứu và tham vấn hỗ trợ. Hãy luôn lắng nghe cơ thể mình.")
+st.caption("Ứng dụng dành riêng cho nghiên cứu cá nhân của Anh Hậu.")
