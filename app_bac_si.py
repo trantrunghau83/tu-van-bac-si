@@ -55,7 +55,7 @@ st.markdown("""
     
     /* Đảm bảo chữ trong tab cũng rõ ràng */
     .stTabs [data-baseweb="tab"] p {
-        color: #8B0000 !important;
+        color: #2e5a56 !important;
         font-weight: bold;
     }
     </style>
