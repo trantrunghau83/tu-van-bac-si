@@ -77,7 +77,7 @@ model = genai.GenerativeModel('gemini-2.5-flash')
 
 # 4. GIAO DIỆN CHÍNH
 st.title("🌿 Bác Sĩ Tâm Giao: Thể Chất & Tâm Hồn")
-st.write("Chào anh Hậu, hãy để 'Hội đồng chuyên gia' đồng hành cùng sức khỏe của anh.")
+st.write("Chào mọi người, hãy để 'Hội đồng chuyên gia' và Trần Trung Hậu đồng hành cùng sức khỏe của quý vị nhé.")
 
 tab1, tab2 = st.tabs(["🩺 Hội Chẩn Mới", "📜 Lịch Sử Tư Vấn"])
 
