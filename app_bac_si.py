@@ -6,27 +6,32 @@ from datetime import datetime
 # 1. CẤU HÌNH GIAO DIỆN & MÀU SẮC CÁ TÍNH (CSS)
 st.set_page_config(page_title="Bác Sĩ Tâm Giao", page_icon="🌿", layout="wide")
 
-# Tùy chỉnh màu sắc thân thiện
+# Tùy chỉnh màu sắc thân thiện và KHẮC PHỤC LỖI CHỮ TRẮNG
 st.markdown("""
     <style>
-    /* Màu nền chính và font chữ */
+    /* Màu nền chính */
     .stApp {
-        background-color: #F0F4F2;
+        background-color: #F0F4F2 !important;
     }
-    /* Đổi màu tiêu đề */
-    h1 {
-        color: #2E5A56 !important;
+    
+    /* Ép màu cho TẤT CẢ các tiêu đề và chữ thông thường (Fix lỗi chữ trắng) */
+    h1, h2, h3, h4, p, label, .stMarkdown, div {
+        color: #1E3F3D !important; 
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    /* Tùy chỉnh khung nhập liệu */
+    
+    /* Tùy chỉnh khung nhập liệu (Nền trắng, viền xanh rêu, chữ bên trong màu đậm) */
     .stTextArea textarea {
         border-radius: 15px !important;
         border: 2px solid #A3C6C4 !important;
+        background-color: #FFFFFF !important;
+        color: #1E3F3D !important; 
     }
-    /* Tùy chỉnh nút bấm chính */
+    
+    /* Tùy chỉnh nút bấm chính (Nền xanh rêu đậm, CHỮ TRẮNG) */
     .stButton>button {
         background-color: #2E5A56 !important;
-        color: white !important;
+        color: white !important; 
         border-radius: 25px !important;
         padding: 10px 25px !important;
         border: none !important;
@@ -37,6 +42,7 @@ st.markdown("""
         background-color: #438A83 !important;
         transform: scale(1.05);
     }
+    
     /* Khung hiển thị lịch sử */
     .history-card {
         background-color: white;
@@ -45,6 +51,12 @@ st.markdown("""
         border-left: 5px solid #2E5A56;
         margin-bottom: 15px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    
+    /* Đảm bảo chữ trong tab cũng rõ ràng */
+    .stTabs [data-baseweb="tab"] p {
+        color: #2E5A56 !important;
+        font-weight: bold;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -123,11 +135,11 @@ with tab2:
             with st.container():
                 st.markdown(f"""
                 <div class="history-card">
-                    <small style='color: #666;'>🕒 Thời gian: {entry['time']}</small><br>
+                    <small style='color: #666 !important;'>🕒 Thời gian: {entry['time']}</small><br>
                     <strong>Triệu chứng:</strong> {entry['query'][:100]}...<br>
                     <details>
-                        <summary style='color: #2E5A56; cursor: pointer;'>Xem lại chi tiết lời khuyên</summary>
-                        <div style='margin-top: 10px;'>{entry['result']}</div>
+                        <summary style='color: #2E5A56 !important; cursor: pointer; font-weight: bold;'>Xem lại chi tiết lời khuyên</summary>
+                        <div style='margin-top: 10px; color: #1E3F3D !important;'>{entry['result']}</div>
                     </details>
                 </div>
                 """, unsafe_allow_html=True)
@@ -138,4 +150,4 @@ with tab2:
             st.rerun()
 
 st.markdown("---")
-st.caption("Ứng dụng dành riêng cho nghiên cứu cá nhân của Anh Hậu.")
+st.caption("Ứng dụng dành riêng cho nghiên cứu cá nhân By Trần Trung Hậu.")
