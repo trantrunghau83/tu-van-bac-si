@@ -85,18 +85,18 @@ with tab1:
     col1, col2 = st.columns([1, 1])
     with col1:
         st.subheader("Thông tin triệu chứng")
-        trieu_chung = st.text_area("Mô tả của anh:", height=150, placeholder="Anh đang cảm thấy thế nào?")
+        trieu_chung = st.text_area("Mô tả của quý vị:", height=150, placeholder="Anh/chị đang cảm thấy thế nào?")
         
     with col2:
         st.subheader("Dữ liệu hình ảnh")
-        uploaded_file = st.file_uploader("Tải ảnh xét nghiệm/đơn thuốc:", type=["jpg", "png", "jpeg"])
+        uploaded_file = st.file_uploader("Hãy tải ảnh xét nghiệm/đơn thuốc vào đây nhé:", type=["jpg", "png", "jpeg"])
         if uploaded_file:
             image = Image.open(uploaded_file)
             st.image(image, caption="Dữ liệu đã nhận", use_container_width=True)
 
     if st.button("✨ Bắt Đầu Phân Tích Chuyên Sâu"):
         if not trieu_chung and not uploaded_file:
-            st.warning("Anh vui lòng nhập thông tin trước nhé!")
+            st.warning("Quý vị vui lòng nhập thông tin trước nhé!")
         else:
             with st.spinner("Đang kết nối hội đồng chuyên gia..."):
                 try:
