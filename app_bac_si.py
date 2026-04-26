@@ -93,7 +93,7 @@ with tab1:
         
     with col2:
         st.subheader("Dữ liệu hình ảnh")
-        uploaded_file = st.file_uploader("Hãy tải ảnh xét nghiệm/đơn thuốc vào đây nhé:", type=["jpg", "png", "jpeg"])
+        uploaded_file = st.file_uploader("Quý vị vui lòng tải ảnh xét nghiệm/đơn thuốc vào ô Upload bên dưới nhé:", type=["jpg", "png", "jpeg"])
         if uploaded_file:
             image = Image.open(uploaded_file)
             st.image(image, caption="Dữ liệu đã nhận", use_container_width=True)
